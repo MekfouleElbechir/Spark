@@ -98,11 +98,11 @@ class MutualFriendsAnalyzer:
             target_pair: Paire cible à mettre en évidence
         """
         print("=" * 50)
-        print("🔍 ANALYSE DES AMIS COMMUNS")
+        print(" ANALYSE DES AMIS COMMUNS")
         print("=" * 50)
         
         # Afficher tous les amis communs
-        print("\n📊 Tous les amis communs trouvés:")
+        print("\n Tous les amis communs trouvés:")
         for (id1, id2), common in sorted(mutual_friends.items()):
             name1 = self.names_map.get(id1, f"User{id1}")
             name2 = self.names_map.get(id2, f"User{id2}")
@@ -110,7 +110,7 @@ class MutualFriendsAnalyzer:
             print(f"  {id1}({name1}) et {id2}({name2}): {common_names}")
         
         # Résultat spécifique pour la paire cible
-        print(f"\n🎯 RÉSULTAT SPÉCIFIQUE - Paire {target_pair}:")
+        print(f"\n RÉSULTAT SPÉCIFIQUE - Paire {target_pair}:")
         print("-" * 30)
         
         if target_pair in mutual_friends:
@@ -121,29 +121,29 @@ class MutualFriendsAnalyzer:
             
             # Format demandé
             result = f"{id1}<{name1}>{id2}<{name2}>{sorted(common)}"
-            print(f"✅ {result}")
+            print(f" {result}")
             
             # Explication
             common_names = [self.names_map.get(fid, f"User{fid}") for fid in sorted(common)]
-            print(f"📝 Explication: {' et '.join(common_names)} {'est' if len(common) == 1 else 'sont'} "
+            print(f"Explication: {' et '.join(common_names)} {'est' if len(common) == 1 else 'sont'} "
                   f"{'l\'ami commun' if len(common) == 1 else 'les amis communs'} "
                   f"entre {name1} et {name2}")
         else:
-            print(f"❌ Aucun ami commun trouvé entre les utilisateurs {target_pair}")
+            print(f" Aucun ami commun trouvé entre les utilisateurs {target_pair}")
     
     def display_statistics(self, data: List[str], mutual_friends: Dict[Tuple[int, int], Set[int]]):
         """Affiche les statistiques de l'analyse"""
-        print(f"\n📈 STATISTIQUES:")
-        print(f"  👥 Nombre total d'utilisateurs: {len(self.names_map)}")
-        print(f"  🔗 Nombre de paires avec amis communs: {len(mutual_friends)}")
+        print(f"\nSTATISTIQUES:")
+        print(f"   Nombre total d'utilisateurs: {len(self.names_map)}")
+        print(f"   Nombre de paires avec amis communs: {len(mutual_friends)}")
         
         # Statistiques détaillées
         total_common_friends = sum(len(friends) for friends in mutual_friends.values())
-        print(f"  🤝 Nombre total d'amis communs: {total_common_friends}")
+        print(f"   Nombre total d'amis communs: {total_common_friends}")
         
         if mutual_friends:
             avg_common = total_common_friends / len(mutual_friends)
-            print(f"  📊 Moyenne d'amis communs par paire: {avg_common:.2f}")
+            print(f"   Moyenne d'amis communs par paire: {avg_common:.2f}")
     
     def stop(self):
         """Arrête le contexte Spark"""
@@ -151,7 +151,7 @@ class MutualFriendsAnalyzer:
 
 def main():
     """Fonction principale"""
-    print("🚀 Démarrage de l'analyse des amis communs...")
+    print(" Démarrage de l'analyse des amis communs...")
     
     # Données d'exemple
     data = [
@@ -162,7 +162,7 @@ def main():
         "5 Salma 2,3"
     ]
     
-    print("\n📋 Données d'entrée:")
+    print("\n Données d'entrée:")
     for i, line in enumerate(data, 1):
         print(f"  {i}. {line}")
     
@@ -180,13 +180,13 @@ def main():
         analyzer.display_statistics(data, mutual_friends)
         
     except Exception as e:
-        print(f"❌ Erreur lors de l'analyse: {e}")
+        print(f" Erreur lors de l'analyse: {e}")
         return 1
     
     finally:
         analyzer.stop()
     
-    print("\n✅ Analyse terminée avec succès!")
+    print("\n Analyse terminée avec succès!")
     return 0
 
 if __name__ == "__main__":
