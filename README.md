@@ -52,9 +52,7 @@ mutual-friends-pyspark/
 ├── main.py              # Code principal du projet
 ├── requirements.txt     # Dépendances Python
 ├── README.md            # Documentation du projet
-├── tests/
-│   ├── test_main.py     # Tests unitaires
-│   └── test_data.py     # Données de test
+├── tests
 └── results/
     └── output_example.txt  # Exemple de sortie
 
