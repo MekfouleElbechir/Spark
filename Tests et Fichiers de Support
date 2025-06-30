@@ -1,0 +1,188 @@
+"""
+Tests unitaires pour le projet Amis Communs
+"""
+import unittest
+import sys
+import os
+
+# Ajouter le répertoire parent au path pour importer main
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from main import MutualFriendsAnalyzer
+
+class TestMutualFriendsAnalyzer(unittest.TestCase):
+    """Tests pour l'analyseur d'amis communs"""
+    
+    def setUp(self):
+        """Initialisation avant chaque test"""
+        self.analyzer = MutualFriendsAnalyzer("TestApp")
+        
+    def tearDown(self):
+        """Nettoyage après chaque test"""
+        self.analyzer.stop()
+    
+    def test_parse_user_data_with_friends(self):
+        """Test du parsing avec amis"""
+        line = "1 Sidi 2,3,4"
+        result = self.analyzer.parse_user_data(line)
+        expected = (1, "Sidi", [2, 3, 4])
+        self.assertEqual(result, expected)
+    
+    def test_parse_user_data_without_friends(self):
+        """Test du parsing sans amis"""
+        line = "4 Sara"
+        result = self.analyzer.parse_user_data(line)
+        expected = (4, "Sara", [])
+        self.assertEqual(result, expected)
+    
+    def test_create_friend_pairs(self):
+        """Test de création des paires d'amis"""
+        user_data = (1, "Sidi", [2, 3, 4])
+        pairs = self.analyzer.create_friend_pairs(user_data)
+        
+        # Vérifier le nombre de paires
+        self.assertEqual(len(pairs), 3)
+        
+        # Vérifier une paire spécifique
+        pair_1_2 = None
+        for pair, friends in pairs:
+            if pair == (1, 2):
+                pair_1_2 = friends
+                break
+        
+        self.assertIsNotNone(pair_1_2)
+        self.assertEqual(pair_1_2, {3, 4})
+    
+    def test_find_mutual_friends_basic(self):
+        """Test de base pour trouver les amis communs"""
+        data = [
+            "1 Sidi 2,3",
+            "2 Mohamed 1,3",
+            "3 Amine 1,2"
+        ]
+        
+        mutual_friends = self.analyzer.find_mutual_friends(data)
+        
+        # Vérifier que Sidi et Mohamed ont Amine comme ami commun
+        self.assertIn((1, 2), mutual_friends)
+        self.assertEqual(mutual_friends[(1, 2)], {3})
+    
+    def test_find_mutual_friends_no_common(self):
+        """Test sans amis communs"""
+        data = [
+            "1 Sidi 2",
+            "2 Mohamed 3",
+            "3 Amine 4"
+        ]
+        
+        mutual_friends = self.analyzer.find_mutual_friends(data)
+        
+        # Aucun ami commun ne devrait être trouvé
+        self.assertEqual(len(mutual_friends), 0)
+    
+    def test_find_mutual_friends_complex(self):
+        """Test avec données complexes"""
+        data = [
+            "1 Sidi 2,3,4",
+            "2 Mohamed 1,3,5",
+            "3 Amine 1,2,5",
+            "4 Sara 1",
+            "5 Salma 2,3"
+        ]
+        
+        mutual_friends = self.analyzer.find_mutual_friends(data)
+        
+        # Vérifier les amis communs attendus
+        expected_pairs = {
+            (1, 2): {3},  # Sidi et Mohamed ont Amine en commun
+            (1, 3): {2},  # Sidi et Amine ont Mohamed en commun
+            (2, 3): {1, 5}  # Mohamed et Amine ont Sidi et Salma en commun
+        }
+        
+        for pair, expected_friends in expected_pairs.items():
+            self.assertIn(pair, mutual_friends)
+            self.assertEqual(mutual_friends[pair], expected_friends)
+
+if __name__ == '__main__':
+    unittest.main()
+
+# ==========================================
+# tests/test_data.py
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Données de test pour le projet
+"""
+
+# Données de test basiques
+BASIC_DATA = [
+    "1 Alice 2,3",
+    "2 Bob 1,3", 
+    "3 Charlie 1,2"
+]
+
+# Données de test complexes
+COMPLEX_DATA = [
+    "1 Sidi 2,3,4",
+    "2 Mohamed 1,3,5",
+    "3 Amine 1,2,5",
+    "4 Sara 1",
+    "5 Salma 2,3"
+]
+
+# Données sans amis communs
+NO_COMMON_DATA = [
+    "1 User1 2",
+    "2 User2 3",
+    "3 User3 4",
+    "4 User4 1"
+]
+
+# Données avec utilisateur isolé
+ISOLATED_USER_DATA = [
+    "1 Connected1 2,3",
+    "2 Connected2 1,3",
+    "3 Connected3 1,2",
+    "4 Isolated"
+]
+
+# ==========================================
+# requirements.txt
+pyspark>=3.4.0
+findspark>=2.0.1
+pytest>=7.0.0
+
+# ==========================================
+# results/output_example.txt
+Démarrage de l'analyse des amis communs...
+
+Données d'entrée:
+  1. 1 Sidi 2,3,4
+  2. 2 Mohamed 1,3,5
+  3. 3 Amine 1,2,5
+  4. 4 Sara 1
+  5. 5 Salma 2,3
+
+==================================================
+ ANALYSE DES AMIS COMMUNS
+==================================================
+
+ Tous les amis communs trouvés:
+  1(Sidi) et 2(Mohamed): ['Amine']
+  1(Sidi) et 3(Amine): ['Mohamed']
+  2(Mohamed) et 3(Amine): ['Salma']
+  2(Mohamed) et 5(Salma): ['Amine']
+  3(Amine) et 5(Salma): ['Mohamed']
+
+RÉSULTAT SPÉCIFIQUE - Paire (1, 2):
+------------------------------
+ 1<Sidi>2<Mohamed>[3]
+ Explication: Amine est l'ami commun entre Sidi et Mohamed
+
+ STATISTIQUES:
+   Nombre total d'utilisateurs: 5
+   Nombre de paires avec amis communs: 5
+   Nombre total d'amis communs: 6
+   Moyenne d'amis communs par paire: 1.20
+
+ Analyse terminée avec succès!
